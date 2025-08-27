@@ -34,7 +34,7 @@ export class CreateUserTable1756211583661 implements MigrationInterface {
                         isNullable: false,
                     },
                     {
-                        name: 'birth date',
+                        name: 'birth_date',
                         type: 'Date',
                         isNullable: false,
                     },
