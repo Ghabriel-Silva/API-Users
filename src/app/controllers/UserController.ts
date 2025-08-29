@@ -1,37 +1,40 @@
-import { Router , Request, Response} from "express";
+import { Router, Request, Response } from "express";
 import UserRepository from "../repositores/UserRepository";
 
 class UserController {
     // Propriedade pública que vai armazenar o router do Express
     public router: Router;
 
-    constructor(){
+    constructor() {
         // Cria uma nova instância de Router
         this.router = Router();
-
         // Inicializa as rotas desse router
         this.inicializeRoutes();
     }
 
-    private inicializeRoutes(){
-        // Define a rota '/' dentro do router
-        // Esta rota é relativa ao router, ou seja, será combinada com o prefixo definido no routes/index.ts
-        // Ex.: routes.use('/users', userRouter) → rota final: /users/
-        // Quando essa rota for acessada, executa a função getAllUsers
-        this.router.get('/', this.getAllUsers);
+    private inicializeRoutes() {
+        this.router.get('/', this.getAllUsers); // registrnado rotas
+        this.router.post('/', this.createUser);
+        this.router.get('/:id', this.getUser)
+    }
+    private async getAllUsers(req: Request, res: Response) {
+
+        const users = await UserRepository.getUsers();
+        res.status(200).json(users);
     }
 
-    private async getAllUsers(req: Request, res: Response){
-        // Chama o método do repository que acessa o banco e retorna todos os usuários
-        const users = await UserRepository.getUsers();
+    private async createUser(req:Request, res: Response){
+        const userCreated = await UserRepository.newUser(req.body);
+        res.status(201).json(userCreated);
+    }
 
-        // Retorna os dados em formato JSON para o cliente 
-        res.status(200).json(users);
+    private async getUser(req:Request, res:Response){
+        const id  = parseInt(req.params.id); //vem como string mais converto para number
+        const user = await UserRepository.getUser(id);
+        return res.status(200).json(user);
     }
 }
 
-// Cria uma instância do UserController e exporta apenas o router configurado
-// Esse objeto router é que será usado no arquivo de rotas (routes/index.ts)
 const userRouter = new UserController().router;
 
 export default userRouter;
