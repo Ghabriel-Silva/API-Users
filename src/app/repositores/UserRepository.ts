@@ -28,20 +28,28 @@ class UserRepository {
     }
 
     //Método PUT para atualização de dados
-
-    static async EditeUser(id:number, update:IUserIput):Promise<IUserOutput | null>{
-        //verificando se tenho o id disponivel altes de fazer o update
-        const user = await this.usersRepository.findOneBy({id})
-
-        if(!id){
+    static async EditeUser(id:number, update:IUserIput):Promise<{message:string}>{
+        //verificando se tenho o id disponivel antes de fazer o update
+        const userExists = await this.usersRepository.findOneBy({id})
+        if(!userExists){
             throw new ErrorExtension(404, "User not found!")
         }
 
         const updateUser = await this.usersRepository.update(id, update)
+        console.log(updateUser)
+        return {message:`The user with ID ${id} has been updated successfully.`}
+    }
 
-        
 
-        return user
+    //Método para deletar Usuário
+
+    static async deleteUser(id:number):Promise<{message:string}>{
+        const result = await this.usersRepository.delete({id})
+        if(result.affected === 0){
+            throw new ErrorExtension(404, `User ${id} Not Found`)
+        }
+         await this.usersRepository.delete({id})
+        return {message:`User ${id} Deleted!`}
     }
 }
 
