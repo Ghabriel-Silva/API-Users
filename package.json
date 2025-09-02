@@ -13,11 +13,13 @@
    },
    "dependencies": {
       "cors": "^2.8.5",
+      "dotenv": "^17.2.2",
       "express": "^4.21.2",
       "express-async-errors": "^3.1.1",
       "mysql2": "^3.14.0",
       "reflect-metadata": "^0.2.2",
-      "typeorm": "0.3.26"
+      "typeorm": "0.3.26",
+      "yup": "^1.7.0"
    },
    "scripts": {
       "build": "tsc",
