@@ -25,7 +25,23 @@ class UserRepository {
         }
 
         return user;
+    }
 
+    //Método PUT para atualização de dados
+
+    static async EditeUser(id:number, update:IUserIput):Promise<IUserOutput | null>{
+        //verificando se tenho o id disponivel altes de fazer o update
+        const user = await this.usersRepository.findOneBy({id})
+
+        if(!id){
+            throw new ErrorExtension(404, "User not found!")
+        }
+
+        const updateUser = await this.usersRepository.update(id, update)
+
+        
+
+        return user
     }
 }
 

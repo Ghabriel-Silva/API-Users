@@ -13,7 +13,7 @@ class UserController {
     }
 
     private inicializeRoutes() {
-        this.router.get('/', this.getAllUsers); // registrnado rotas
+        this.router.get('/', this.getAllUsers); // registrando rotas
         this.router.post('/', this.createUser);
         this.router.get('/:id', this.getUser)
     }
