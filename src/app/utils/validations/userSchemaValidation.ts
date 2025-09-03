@@ -33,3 +33,5 @@ let UserSchema = yup.object().shape({
     .typeError("O campo ativo deve ser um valor booleano") // equivale ao "boolean.base" do Joi
     .required("O campo ativo é obrigatório"),
 })
+
+export default UserSchema
