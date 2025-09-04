@@ -1,9 +1,10 @@
 import * as yup from 'yup';
+import bcrypt from "bcrypt"
 import User from "../entities/User";
 import { IUserOutput, IUserIput } from "../interfaces/IUser";
 import { AppDataSource } from "../../database/dataSource";
 import ErrorExtension from "../utils/ErrorExtensions";
-import UserSchema from "../utils/validations/userSchemaValidation";
+import { UserSchema, updateUserSchema } from "../utils/validations/userSchemaValidation";
 
 
 class UserRepository {
@@ -18,6 +19,10 @@ class UserRepository {
         try {
             // Valida o usuário
             await UserSchema.validate(user, { abortEarly: false }); // abortEarly: false para pegar todos os erros
+
+            //Criptografando senha depois de validar esquema
+            const hashedPassword = await bcrypt.hash(user.password, 10)
+            user.password = hashedPassword;
 
             // Se passar, salva no banco
             const createdUser = await this.usersRepository.save(user);
@@ -50,9 +55,14 @@ class UserRepository {
         if (!userExists) {
             throw new ErrorExtension(404, "User not found!")
         }
+         //Criptografando senha se na hora de eu fazer um upload eu tiver uma senha
+        if (update.password) {
+            const hashedPassword = await bcrypt.hash(update.password, 10)
+            update.password = hashedPassword;
+        }
 
         try {
-            await UserSchema.validate(update, { abortEarly: false })
+            await updateUserSchema.validate(update, { abortEarly: false })
             const updateUser = await this.usersRepository.update(id, update)
             console.log(updateUser)
             return { message: `The user with ID ${id} has been updated successfully.` }
@@ -67,7 +77,6 @@ class UserRepository {
 
 
     //Método para deletar Usuário
-
     static async deleteUser(id: number): Promise<{ message: string }> {
         const result = await this.usersRepository.delete({ id })
         if (result.affected === 0) {
