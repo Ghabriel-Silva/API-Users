@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import UserRepository from "../repositores/UserRepository";
+import AutenticateMiddleware from "../middlewares/AuthMiddleware"
 
 class UserController {
     // Propriedade pública que vai armazenar o router do Express
@@ -15,9 +16,10 @@ class UserController {
     private inicializeRoutes() {
         this.router.get('/', this.getAllUsers); // registrando rotas
         this.router.post('/', this.createUser);
-        this.router.get('/:id', this.getUser);
+        this.router.get('/:id',AutenticateMiddleware, this.getUser); // no caso usando o middleware de autenticação
         this.router.put('/:id', this.updateUser);
         this.router.delete('/:id', this.deleteUser);
+        this.router.post('/auth', this.authenticationUser) // criando para gerar autenticação
         
     }
     private async getAllUsers(req: Request, res: Response) {
@@ -48,6 +50,11 @@ class UserController {
         const id = parseInt(req.params.id);
         const userDelete = await UserRepository.deleteUser(id);
         res.status(200).json(userDelete);
+    }
+
+    private async authenticationUser(req:Request, res:Response){
+        const token = await UserRepository.authentication(req.body)
+        res.status(200).json(token)
     }
 }
 

@@ -5,7 +5,8 @@ import { IUserOutput, IUserIput } from "../interfaces/IUser";
 import { AppDataSource } from "../../database/dataSource";
 import ErrorExtension from "../utils/ErrorExtensions";
 import { UserSchema, updateUserSchema } from "../utils/validations/userSchemaValidation";
-
+import { ILogin } from '../interfaces/ILogin';
+import Auth from '../utils/Auth';
 
 class UserRepository {
     private static usersRepository = AppDataSource.getRepository(User) //atributo da classe que recebe a entidade que no caso User contem o espelhamento do banco de dados ja criado
@@ -75,7 +76,6 @@ class UserRepository {
         }
     }
 
-
     //Método para deletar Usuário
     static async deleteUser(id: number): Promise<{ message: string }> {
         const result = await this.usersRepository.delete({ id })
@@ -84,6 +84,39 @@ class UserRepository {
         }
         await this.usersRepository.delete({ id })
         return { message: `User ${id} Deleted!` }
+    }
+
+    //Pegar email , encontra o primeiro que tiver esse email
+    static async getUserEmail(email:string): Promise<IUserOutput | null>{
+        return this.usersRepository.findOneBy({email})
+    }
+
+    static async authentication(loginData:ILogin):Promise<string>{
+        const {email,  password } = loginData
+
+        if(!email || !password) throw new ErrorExtension(401, "Missing data")
+        
+            const user = await this.getUserEmail(email)
+            if(!user?.password){
+                throw new ErrorExtension(401, "E-mail or password wrong")
+            } else{
+                const passwordVerification = await bcrypt.compare(password, user.password);
+                console.log(passwordVerification)
+                if(!passwordVerification){
+                    throw new ErrorExtension(401, "E-mail or password wrong")
+                }
+            }
+
+            const payload = {
+                name: user.name, 
+                email:user.email
+            }
+
+            const auth = new Auth()
+            const token = auth.JwtGenerator(payload)
+
+            return token
+        
     }
 }
 

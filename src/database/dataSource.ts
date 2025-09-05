@@ -1,9 +1,13 @@
 import "reflect-metadata"
-import "dotenv/config";
+import dotenv from "dotenv";
 import { DataSource } from "typeorm"
 import {CreateUserTable1756211583661} from "./migrations/1756211583661-CreateUserTable"
 import {CreateSeedUsersTable1756317660505} from "./migrations/1756317660505-createSeedUsersTable"
 import User from "../app/entities/User"
+
+
+dotenv.config();
+
 export const AppDataSource = new DataSource({
     type: "mysql",
     host: process.env.DB_HOST,
